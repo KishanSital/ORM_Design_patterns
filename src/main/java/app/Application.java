@@ -14,5 +14,6 @@ public class Application {
         BankDAO bankDAOCBVS = new BankDAO(jpaConfigurationCBVS.getEntityManager());
         List<BankClient> bankClientListCBVS = bankDAOCBVS.retrieveClientList();
         bankClientListCBVS.forEach(System.out::println);
+
     }
 }

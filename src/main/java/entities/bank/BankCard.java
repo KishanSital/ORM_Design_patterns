@@ -7,7 +7,7 @@ import java.util.List;
 @Entity
 public class BankCard {
     @Id
-    @Column(name = "card_number")
+    @Column(name = "card_number",unique = true)
     private Long cardNumber;
     @ManyToMany(mappedBy = "bankCards", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<BankClient> bankClient;

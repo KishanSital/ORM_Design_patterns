@@ -8,7 +8,7 @@ import java.util.List;
 @Entity
 public class BankClient {
     @Id
-    @Column(name = "id_card")
+    @Column(name = "id_card",unique = true)
     private Long idCard;
     @Column(name = "voornaam")
     private String voornaam;

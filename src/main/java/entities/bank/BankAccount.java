@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 @Entity
 public class BankAccount {
     @Id
-    @Column(name = "account_number")
+    @Column(name = "account_number",unique = true)
     private Long accountNumber;
     @OneToOne
     private BankAccountType bankAccountType;

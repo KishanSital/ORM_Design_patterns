@@ -7,8 +7,9 @@ import javax.persistence.*;
 public class BankCurrency {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(unique = true, nullable = false)
     private Long id;
-    @Column(name = "currency_code")
+    @Column(name = "currency_code", unique = true, nullable = false)
     private String currencyCode;
 
     public BankCurrency(Long id, String currencyCode) {

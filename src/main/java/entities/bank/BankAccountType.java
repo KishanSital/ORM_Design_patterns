@@ -7,8 +7,9 @@ import javax.persistence.*;
 public class BankAccountType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(unique = true)
     private Long id;
-    @Column(name = "bank_account_type_description")
+    @Column(name = "bank_account_type_description",unique = true,nullable = false)
     private String bankAccountTypeDescription;
 
     public BankAccountType(Long id, String bankAccountTypeDescription) {

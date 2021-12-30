@@ -1,4 +1,4 @@
-package entities.bank;
+package designpatterns.creational.builder.entities.bank;
 
 import javax.persistence.*;
 import java.time.LocalDate;

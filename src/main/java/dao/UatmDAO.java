@@ -1,6 +1,6 @@
 package dao;
 
-import entities.uatm.User;
+import designpatterns.creational.builder.entities.uatm.User;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;

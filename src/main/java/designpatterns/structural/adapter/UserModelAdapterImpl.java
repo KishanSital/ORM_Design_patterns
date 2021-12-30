@@ -1,6 +1,6 @@
-package structural.adapter;
+package designpatterns.structural.adapter;
 
-import entities.uatm.User;
+import designpatterns.creational.builder.entities.uatm.User;
 import mypackage.models.UserModel;
 
 import java.util.Arrays;
@@ -26,6 +26,7 @@ public class UserModelAdapterImpl implements UserModelAdapter {
         return this.userModel;
     }
 
+    //builder pattern
     private UserModel convertUserToUserModel(User user) {
         return new UserModel
                 .UserModelBuilder()
@@ -43,6 +44,7 @@ public class UserModelAdapterImpl implements UserModelAdapter {
         return this.user;
     }
 
+    //builder pattern
     private User convertUserModelToUser(UserModel userModel) {
         return new User
                 .UserBuilder()

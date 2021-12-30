@@ -1,4 +1,4 @@
-package entities.bank;
+package designpatterns.creational.builder.entities.bank;
 
 import javax.persistence.*;
 import java.util.List;
@@ -39,6 +39,9 @@ public class BankCard {
         this.bankClient = bankCardBuilder.bankClient;
         this.bankAccounts = bankCardBuilder.bankAccounts;
         this.bankPin = bankCardBuilder.bankPin;
+    }
+
+    public BankCard() {
     }
 
     public Long getCardNumber() {

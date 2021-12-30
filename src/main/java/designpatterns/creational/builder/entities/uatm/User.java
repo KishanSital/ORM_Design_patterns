@@ -1,4 +1,4 @@
-package entities.uatm;
+package designpatterns.creational.builder.entities.uatm;
 
 import javax.persistence.*;
 import java.util.List;

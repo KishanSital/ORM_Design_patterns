@@ -1,6 +1,6 @@
 package dao;
 
-import entities.bank.BankClient;
+import designpatterns.creational.builder.entities.bank.BankClient;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;

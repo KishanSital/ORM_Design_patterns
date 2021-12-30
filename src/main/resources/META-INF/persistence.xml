@@ -23,7 +23,7 @@
     </persistence-unit>
 
     <persistence-unit name="HKB" transaction-type="RESOURCE_LOCAL">
-        <description>Hibernate JPA Configuration DSB</description>
+        <description>Hibernate JPA Configuration HKB</description>
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
@@ -41,7 +41,7 @@
     </persistence-unit>
 
     <persistence-unit name="CBVS" transaction-type="RESOURCE_LOCAL">
-        <description>Hibernate JPA Configuration DSB</description>
+        <description>Hibernate JPA Configuration CBVS</description>
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>

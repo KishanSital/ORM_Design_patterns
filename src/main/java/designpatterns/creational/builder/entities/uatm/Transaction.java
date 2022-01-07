@@ -115,6 +115,15 @@ public class Transaction {
         this.transactionSource = transactionSource;
     }
 
+    @Override
+    public String toString() {
+        return
+                " transaction date =" + transactionDate +
+                        "\n transaction amount =" + transactionAmount +
+                        "\n transaction description ='" + transactionDescription + '\'' +
+                        "\n transactionSource='" + transactionSource + '\'';
+    }
+
     public static class TransactionBuilder {
         private Long id;
         private User user;

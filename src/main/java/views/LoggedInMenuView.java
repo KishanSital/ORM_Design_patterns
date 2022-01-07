@@ -4,26 +4,20 @@ import mypackage.services.MenuService;
 import mypackage.utils.IntUtilsMyPackage;
 import mypackage.utils.StringUtilsMyPackage;
 
-import java.util.ArrayList;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import static mypackage.serviceImpl.TriesValidationServiceImpl.triesValidation;
 
 public class LoggedInMenuView implements MenuService, Cloneable {
     private static List<String> menuOptionsList;
-    private final int exitCode = 0;
-    private final double overmaakKoersUSD;
-    private final double overmaakKoersEURO;
+    private final int exitCode = 7;
+    private final Map<String, Double> overmaakKoersMap;
     private Scanner scanner;
     private UatmView uatmView;
 
-    public LoggedInMenuView(double overmaakKoersUSD,
-                            double overmaakKoersEURO,
+    public LoggedInMenuView(Map<String, Double> overmaakKoersMap,
                             UatmView uatmView) {
-        this.overmaakKoersUSD = overmaakKoersUSD;
-        this.overmaakKoersEURO = overmaakKoersEURO;
+        this.overmaakKoersMap = overmaakKoersMap;
         this.uatmView = uatmView;
         init();
     }
@@ -33,7 +27,6 @@ public class LoggedInMenuView implements MenuService, Cloneable {
     public void init() {
         scanner = new Scanner(System.in);
         resetAllValidationServices();
-
     }
 
     @Override
@@ -53,17 +46,29 @@ public class LoggedInMenuView implements MenuService, Cloneable {
             switch (choiceEntry) {
                 case 1:
                     resetAllValidationServices();
+                    uatmView.viewTransactions();
                     break;
                 case 2:
                     resetAllValidationServices();
+                    uatmView.clearTransactionLog();
                     break;
                 case 3:
                     resetAllValidationServices();
+                    uatmView.viewBalance();
                     break;
                 case 4:
                     resetAllValidationServices();
+                    uatmView.viewBalanceForAllAccounts();
                     break;
                 case 5:
+                    resetAllValidationServices();
+                    uatmView.withdrawMoney();
+                    break;
+                case 6:
+                    resetAllValidationServices();
+                    uatmView.transferMoney();
+                    break;
+                case 7:
                     resetAllValidationServices();
                     System.out.println(StringUtilsMyPackage.LOGGED_OUT_MESSAGE.getStringValue());
                     System.exit(0);
@@ -86,6 +91,7 @@ public class LoggedInMenuView implements MenuService, Cloneable {
             menuOptionsList.add("to view all your transactions");
             menuOptionsList.add("to clear complete transaction log");
             menuOptionsList.add("to view your balance");
+            menuOptionsList.add("to view balance of all your accounts");
             menuOptionsList.add("to withdraw money");
             menuOptionsList.add("to transfer money");
             menuOptionsList.add("to Log out and exit UATM");

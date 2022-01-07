@@ -1,10 +1,10 @@
 package dao;
 
+import designpatterns.creational.builder.entities.bank.BankCard;
 import designpatterns.creational.builder.entities.bank.BankClient;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.transaction.Transactional;
 import java.util.List;
 
 public class BankDAO {
@@ -14,7 +14,7 @@ public class BankDAO {
         this.entityManager = entityManager;
     }
 
-    @Transactional
+
     public List<BankClient> retrieveClientList() {
         entityManager.getTransaction().begin();
 
@@ -23,5 +23,17 @@ public class BankDAO {
         List<BankClient> bankClientList = query.getResultList();
         entityManager.getTransaction().commit();
         return bankClientList;
+    }
+
+    public BankCard findBankCardByCardNumberAndBankPin(Long cardNumber, Long bankPin) {
+
+        entityManager.getTransaction().begin();
+        String jpql = "select c from BankCard c where c.cardNumber = :cardNumber and c.bankPin = :bankPin";
+        TypedQuery<BankCard> query = entityManager.createQuery(jpql, BankCard.class);
+        query.setParameter("cardNumber", cardNumber);
+        query.setParameter("bankPin", bankPin);
+        BankCard bankCard = query.getSingleResult();
+        entityManager.getTransaction().commit();
+        return bankCard;
     }
 }

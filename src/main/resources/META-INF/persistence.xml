@@ -15,8 +15,8 @@
             <property name="javax.persistence.jdbc.password" value="Kishan"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect"/>
             <property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy"/>
-            <property name="hibernate.show_sql" value="true"/>
-            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.show_sql" value="none"/>
+            <property name="hibernate.format_sql" value="none"/>
             <property name="hibernate.hbm2ddl.auto" value="none"/>
         </properties>
 
@@ -33,8 +33,8 @@
             <property name="javax.persistence.jdbc.password" value="Kishan"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect"/>
             <property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy"/>
-            <property name="hibernate.show_sql" value="true"/>
-            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.show_sql" value="none"/>
+            <property name="hibernate.format_sql" value="none"/>
             <property name="hibernate.hbm2ddl.auto" value="none"/>
         </properties>
 
@@ -51,8 +51,8 @@
             <property name="javax.persistence.jdbc.password" value="Kishan"/>
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect"/>
             <property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy"/>
-            <property name="hibernate.show_sql" value="true"/>
-            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.show_sql" value="none"/>
+            <property name="hibernate.format_sql" value="none"/>
             <property name="hibernate.hbm2ddl.auto" value="none"/>
         </properties>
 
@@ -70,8 +70,8 @@
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL8Dialect"/>
             <property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy"/>
             <property name="hibernate.hbm2ddl.schema_filter_provider" value="config.Provider"/>
-            <property name="hibernate.show_sql" value="true"/>
-            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.show_sql" value="none"/>
+            <property name="hibernate.format_sql" value="none"/>
             <property name="hibernate.hbm2ddl.auto" value="none"/>
         </properties>
     </persistence-unit>

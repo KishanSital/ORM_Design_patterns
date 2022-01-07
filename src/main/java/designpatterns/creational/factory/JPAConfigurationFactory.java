@@ -18,6 +18,10 @@ public class JPAConfigurationFactory {
             return new JPAConfigurationCBVS();
         }
 
+        if (persistenceUnitName.equalsIgnoreCase("HKB")) {
+            return new JPAConfigurationHKB();
+        }
+
         return null;
     }
 }

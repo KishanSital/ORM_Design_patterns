@@ -1,7 +1,8 @@
 package designpatterns.structural.adapter;
 
+import com.github.KishanSital.authenticator.models.UserModel;
 import designpatterns.creational.builder.entities.uatm.User;
-import mypackage.models.UserModel;
+
 
 import java.util.Arrays;
 

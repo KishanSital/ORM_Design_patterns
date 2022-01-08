@@ -2,6 +2,8 @@ package serviceImpl;
 
 import dao.BankDAO;
 import dao.UatmDAO;
+import designpatterns.behavioral.strategy.ClearTransactionLog;
+import designpatterns.behavioral.strategy.UatmContext;
 import designpatterns.creational.builder.entities.bank.BankCard;
 import designpatterns.creational.builder.entities.uatm.Transaction;
 import designpatterns.creational.factory.JPAConfiguration;
@@ -16,7 +18,12 @@ public class UatmServiceImpl implements UatmService {
 
     private final Map<String, JPAConfiguration> jpaConfigurationsMap;
     private final UatmDAO uatmDAO;
+    //usage of factory pattern
+    private UatmContext uatmContext;
 
+    //TODO: work with uatmcontext, UatmServiceImpl kan wegvallen en al deze zaken worden
+    // dan geplaatst in de gespecificeerde implementatie voor de uatmOperation die in de
+    // uatmcontext injected wordt en dit wordt dan gewoon gedaan in de uatmview
     public UatmServiceImpl(Map<String, JPAConfiguration> jpaConfigurationsMap,
                            UatmDAO uatmDAO) {
         this.jpaConfigurationsMap = jpaConfigurationsMap;

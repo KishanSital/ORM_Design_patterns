@@ -9,8 +9,9 @@ import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 
-import static mypackage.serviceImpl.TriesValidationServiceImpl.resetTriesService;
-import static mypackage.serviceImpl.TriesValidationServiceImpl.triesValidation;
+import static com.github.KishanSital.authenticator.serviceImpl.TriesValidationServiceImpl.resetTriesService;
+import static com.github.KishanSital.authenticator.serviceImpl.TriesValidationServiceImpl.triesValidation;
+
 
 public class UatmView {
 

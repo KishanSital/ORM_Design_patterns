@@ -1,12 +1,15 @@
 package views;
 
-import mypackage.services.MenuService;
-import mypackage.utils.IntUtilsMyPackage;
-import mypackage.utils.StringUtilsMyPackage;
+
+
+import com.github.KishanSital.authenticator.services.MenuService;
+import com.github.KishanSital.authenticator.utils.IntUtilsMyPackage;
+import com.github.KishanSital.authenticator.utils.StringUtilsMyPackage;
 
 import java.util.*;
 
-import static mypackage.serviceImpl.TriesValidationServiceImpl.triesValidation;
+import static com.github.KishanSital.authenticator.serviceImpl.TriesValidationServiceImpl.triesValidation;
+
 
 public class LoggedInMenuView implements MenuService, Cloneable {
     private static List<String> menuOptionsList;

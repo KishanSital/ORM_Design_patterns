@@ -6,13 +6,13 @@ import designpatterns.creational.factory.JPAConfiguration;
 import designpatterns.creational.factory.JPAConfigurationFactory;
 import designpatterns.structural.adapter.UserModelAdapter;
 import designpatterns.structural.adapter.UserModelAdapterImpl;
-import mypackage.application.MyPackageApplication;
-import mypackage.models.UserModel;
-import mypackage.utils.StringUtilsMyPackage;
 import serviceImpl.UatmServiceImpl;
 import serviceImpl.UatmSessionServiceImpl;
 import views.LoggedInMenuView;
 import views.UatmView;
+import com.github.KishanSital.authenticator.application.MyPackageApplication;
+import com.github.KishanSital.authenticator.models.UserModel;
+import com.github.KishanSital.authenticator.utils.StringUtilsMyPackage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,8 +56,8 @@ public class Application {
         Map<Integer, String> bankOptions = Map.of(1, "DSB", 2, "CBVS", 3, "HKB");
         UatmServiceImpl uatmService = new UatmServiceImpl(JPAConfigurationMap, uatmDAO);
 
-        var uatmView = new UatmView(uatmService, bankOptions);
-        var loggedInMenuView = new LoggedInMenuView(overmaakKoersMap, uatmView);
+        UatmView uatmView = new UatmView(uatmService, bankOptions);
+        LoggedInMenuView loggedInMenuView = new LoggedInMenuView(overmaakKoersMap, uatmView);
         loggedInMenuView.displayMenu();
     }
 }

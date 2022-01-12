@@ -15,11 +15,14 @@ import com.github.KishanSital.authenticator.models.UserModel;
 import com.github.KishanSital.authenticator.utils.StringUtilsMyPackage;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class Application {
 
     public static void main(String[] args) {
+
+        Locale.setDefault(new Locale.Builder().setLanguage("nl").setRegion("DE").build());
 
         Map<String, Double> overmaakKoersMap = new HashMap<>();
         overmaakKoersMap.put("overmaakKoersUSD", 23.00);

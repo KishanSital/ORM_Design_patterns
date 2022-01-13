@@ -2,6 +2,7 @@ package designpatterns.creational.builder.entities.uatm;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 
 @Table(name = "transaction")
@@ -118,10 +119,10 @@ public class Transaction {
     @Override
     public String toString() {
         return
-                " transaction date =" + transactionDate +
-                        "\n transaction amount =" + transactionAmount +
-                        "\n transaction description ='" + transactionDescription + '\'' +
-                        "\n transactionSource='" + transactionSource + '\'';
+                " transaction date = " + transactionDate +
+                        "\n\ttransaction amount = " + NumberFormat.getCurrencyInstance().format(transactionAmount) +
+                        "\n\ttransaction description = '" + transactionDescription + '\'' +
+                        "\n\ttransaction bank source = " + transactionSource + "\n";
     }
 
     public static class TransactionBuilder {
@@ -174,7 +175,7 @@ public class Transaction {
             return this;
         }
 
-        public Transaction builder() {
+        public Transaction build() {
             Transaction transaction = new Transaction(this);
             return transaction;
         }

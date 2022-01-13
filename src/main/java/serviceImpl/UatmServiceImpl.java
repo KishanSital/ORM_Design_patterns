@@ -2,17 +2,17 @@ package serviceImpl;
 
 import dao.BankDAO;
 import dao.UatmDAO;
-import designpatterns.behavioral.strategy.ClearTransactionLog;
 import designpatterns.behavioral.strategy.UatmContext;
+import designpatterns.creational.builder.entities.bank.BankAccount;
 import designpatterns.creational.builder.entities.bank.BankCard;
 import designpatterns.creational.builder.entities.uatm.Transaction;
 import designpatterns.creational.factory.JPAConfiguration;
 import services.UatmService;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class UatmServiceImpl implements UatmService {
 
@@ -36,12 +36,12 @@ public class UatmServiceImpl implements UatmService {
 
     @Override
     public List<Transaction> getAllTransactions() {
-        return UatmSessionServiceImpl.user.getTransactions();
+        return uatmDAO.findAllTransactionsByUserId();
     }
 
     @Override
-    public void clearTransactionLog() {
-
+    public int clearTransactionLog() {
+        return uatmDAO.deleteAllTransactionsByUserId();
     }
 
     @Override
@@ -55,17 +55,23 @@ public class UatmServiceImpl implements UatmService {
     }
 
     @Override
-    public void displayAllAccountBalance() {
-
+    public List<BankAccount> getAllAccountByCardNumber() {
+        BankDAO bankDAO = new BankDAO(jpaConfigurationsMap.get(CardSessionServiceImpl.selectedBank).getEntityManager());
+        return bankDAO.findBankAccountsByCardNumber();
     }
 
     @Override
-    public void withDrawMoney(BigDecimal amountToWithdraw) {
+    public BankAccount withDrawMoney(Long accountNumber,
+                                     BigDecimal newBalance) {
+        BankDAO bankDAO = new BankDAO(jpaConfigurationsMap.get(CardSessionServiceImpl.selectedBank).getEntityManager());
+        bankDAO.updateAccountBalance(accountNumber, newBalance);
+        return bankDAO.findBankAccountByAccountNumber(accountNumber);
 
     }
 
     @Override
     public void transferMoney(BigDecimal amountToTransfer) {
+        BankDAO bankDAO = new BankDAO(jpaConfigurationsMap.get(CardSessionServiceImpl.selectedBank).getEntityManager());
 
     }
 
@@ -75,10 +81,26 @@ public class UatmServiceImpl implements UatmService {
     }
 
     @Override
-    public BankCard getBankCardByBankAndCardNumberAndBankPin(String bank,
-                                                             Long cardNumber,
+    public BankCard getBankCardByBankAndCardNumberAndBankPin(Long cardNumber,
                                                              Long bankPin) {
-        BankDAO bankDAO = new BankDAO(jpaConfigurationsMap.get(bank).getEntityManager());
-        return bankDAO.findBankCardByCardNumberAndBankPin(cardNumber,bankPin);
+        BankDAO bankDAO = new BankDAO(jpaConfigurationsMap.get(CardSessionServiceImpl.selectedBank).getEntityManager());
+        return bankDAO.findBankCardByCardNumberAndBankPin(cardNumber, bankPin);
+    }
+
+    @Override
+    public Transaction createTransationLog(Long transactionAccountNumber,
+                                           BigDecimal transactionAmount,
+                                           String transactionDescription) {
+        return uatmDAO.insertNewTransaction(new Transaction
+                .TransactionBuilder()
+                .transactionAccountNumber(transactionAccountNumber)
+                .transactionAmount(transactionAmount)
+                .transactionCardNumber(CardSessionServiceImpl.bankCard.getCardNumber())
+                .transactionDate(LocalDate.now())
+                .transactionDescription(transactionDescription)
+                .user(UatmSessionServiceImpl.user)
+                .transactionSource(CardSessionServiceImpl.selectedBank)
+                .build());
+
     }
 }

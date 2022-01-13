@@ -34,13 +34,6 @@ public class Application {
         JPAConfigurationMap.put("CBVS", new JPAConfigurationFactory().getJPAConfiguration("CBVS"));
         JPAConfigurationMap.put("DSB", new JPAConfigurationFactory().getJPAConfiguration("DSB"));
         JPAConfigurationMap.put("HKB", new JPAConfigurationFactory().getJPAConfiguration("HKB"));
-               /*
-
-        JPAConfiguration jpaConfigurationCBVS = new JPAConfiguration("CBVS");
-        BankDAO bankDAOCBVS = new BankDAO(jpaConfigurationCBVS.getEntityManager());
-        List<BankClient> bankClientListCBVS = bankDAOCBVS.retrieveClientList();
-        bankClientListCBVS.forEach(System.out::println);*/
-
 
         UatmDAO uatmDAO = new UatmDAO(JPAConfigurationMap.get("UATM").getEntityManager());
 

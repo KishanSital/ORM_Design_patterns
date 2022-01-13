@@ -5,6 +5,7 @@ import designpatterns.creational.builder.entities.bank.BankCard;
 import serviceImpl.CardSessionServiceImpl;
 import services.UatmService;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.InputMismatchException;
 import java.util.Map;
@@ -29,17 +30,18 @@ public class UatmView {
         if (!uatmService.getAllTransactions().isEmpty()) {
             for (int transactionNumber = 0; transactionNumber < uatmService.getAllTransactions().size(); transactionNumber++) {
 
-                System.out.println(transactionNumber + ". " + uatmService.getAllTransactions().toArray()[transactionNumber]);
+                System.out.println(transactionNumber + 1 + ". " + uatmService.getAllTransactions().toArray()[transactionNumber]);
             }
+        } else {
+            System.out.println("\nYour transaction log is empty\n");
         }
 
-        System.out.println("\nYour transaction log is empty\n");
 
     }
 
     public void clearTransactionLog() {
-        uatmService.clearTransactionLog();
-        System.out.println("\nTransaction log has been cleared.");
+        int totalDeletedTransactions = uatmService.clearTransactionLog();
+        System.out.println("\n" + (totalDeletedTransactions + totalDeletedTransactions == 1 ? " Record has " : " Records have ") + "been removed from the transaction log.\n");
     }
 
     public void viewBalance() {
@@ -77,6 +79,7 @@ public class UatmView {
                 System.out.println("Sorry, we don't provide any services for this bank yet.");
                 triesValidation();
             } else {
+                CardSessionServiceImpl.selectedBank = bankOptions.get(selectedBank);
                 resetTriesService();
                 long cardNumber;
                 long bankPin;
@@ -87,7 +90,7 @@ public class UatmView {
                         cardNumber = scanner.nextLong();
                         System.out.println("Please provide your card pin");
                         bankPin = scanner.nextLong();
-                        BankCard bankCard = uatmService.getBankCardByBankAndCardNumberAndBankPin(bankOptions.get(selectedBank), cardNumber, bankPin);
+                        BankCard bankCard = uatmService.getBankCardByBankAndCardNumberAndBankPin(cardNumber, bankPin);
 
                         if (bankCard != null) {
                             isCardValid = true;
@@ -103,7 +106,7 @@ public class UatmView {
                     }
 
                     if (!isCardValid) {
-                        System.out.println("Something went wrong please try again");
+                        System.out.println("\nSomething went wrong please try again");
                         triesValidation();
 
                     } else {
@@ -115,7 +118,7 @@ public class UatmView {
         return null;
     }
 
-    private void displayBalance() {
+    private BankAccount displayBalance() {
         boolean isAccountNumberValid;
         Long accountNumber;
         resetTriesService();
@@ -131,7 +134,7 @@ public class UatmView {
             }
 
             Long finalAccountNumber = accountNumber;
-            isAccountNumberValid = CardSessionServiceImpl.bankCard.getBankAccounts().stream().anyMatch(bankAccount -> bankAccount.getAccountNumber().equals(finalAccountNumber));
+            isAccountNumberValid = uatmService.getAllAccountByCardNumber().stream().anyMatch(bankAccount -> bankAccount.getAccountNumber().equals(finalAccountNumber));
 
             if (!isAccountNumberValid) {
                 System.out.println("This account number does not exist");
@@ -139,26 +142,74 @@ public class UatmView {
             }
 
             if (isAccountNumberValid) {
-                BankAccount bankAccount = CardSessionServiceImpl.bankCard.getBankAccounts().stream().filter(bA -> bA.getAccountNumber().equals(finalAccountNumber)).findFirst().get();
-                System.out.println("Your balance is for account type " + bankAccount.getBankAccountType().getBankAccountTypeDescription() + " is " + NumberFormat.getCurrencyInstance().format(bankAccount.getBankCurrency().getCurrencyCode()) + " " + bankAccount.getBankBalance() + "\n");
+                BankAccount bankAccount = uatmService.getAllAccountByCardNumber().stream().filter(bA -> bA.getAccountNumber().equals(finalAccountNumber)).findFirst().get();
+                printBalance(bankAccount);
+                return bankAccount;
             }
 
         } while (!isAccountNumberValid);
+        return null;
     }
 
     public void viewBalanceForAllAccounts() {
         verifyCardSession();
         displayBalanceForAllBankUserAccounts();
+        System.out.println();
+
+        // TODO: issue bij data ophalen na update en strategy pattern implementeren
 
     }
 
     private void displayBalanceForAllBankUserAccounts() {
-        CardSessionServiceImpl.bankCard.getBankAccounts().parallelStream().forEach(bankAccount ->
-                System.out.println("Your balance for account type " + bankAccount.getBankAccountType().getBankAccountTypeDescription() + " is " + bankAccount.getBankCurrency().getCurrencyCode() + " " + bankAccount.getBankBalance() + "\n")
+        CardSessionServiceImpl.bankCard.getBankAccounts().forEach(bankAccount ->
+                printBalance(bankAccount)
         );
     }
 
+    private void printBalance(BankAccount bankAccount) {
+        String message = "Your balance for account type "  + (bankAccount.getBankAccountType().getBankAccountTypeDescription().equalsIgnoreCase("spaar") ? "SPAAR" : "GIRO") + " is " + bankAccount.getBankCurrency().getCurrencyCode() + " " + NumberFormat.getCurrencyInstance().format(bankAccount.getBankBalance());
+        System.out.println(message);
+    }
+
+
     public void withdrawMoney() {
+        verifyCardSession();
+        BankAccount bankAccount = displayBalance();
+        BigDecimal amountToWithdraw;
+        boolean isAmountSufficient;
+        BigDecimal balanceAfterWithdrawal;
+        resetTriesService();
+        do {
+            System.out.println("Please enter a non-decimal amount which you'd like to withdraw from the above mentioned account");
+            try {
+                System.out.print(bankAccount.getBankCurrency().getCurrencyCode() + " ");
+                amountToWithdraw = scanner.nextBigDecimal();
+            } catch (InputMismatchException e) {
+                triesValidation();
+                isAmountSufficient = false;
+                scanner.next();
+                continue;
+            }
+
+            balanceAfterWithdrawal = bankAccount.getBankBalance().subtract(amountToWithdraw);
+            isAmountSufficient = balanceAfterWithdrawal.compareTo(BigDecimal.valueOf(0)) >= 0;
+
+            if (!isAmountSufficient) {
+                System.out.println("The given amount of " + bankAccount.getBankCurrency().getCurrencyCode() + " " + amountToWithdraw + " is more than your current balance");
+                triesValidation();
+            }
+
+            if (isAmountSufficient) {
+
+                bankAccount = uatmService.withDrawMoney(bankAccount.getAccountNumber(), balanceAfterWithdrawal);
+
+                uatmService.createTransationLog(bankAccount.getAccountNumber(), amountToWithdraw, "money has been withdrawn from local UATM machine\n\tWithdrawal currency = " + bankAccount.getBankCurrency().getCurrencyCode());
+
+                printBalance(bankAccount);
+            }
+
+        } while (!isAmountSufficient);
+
 
     }
 

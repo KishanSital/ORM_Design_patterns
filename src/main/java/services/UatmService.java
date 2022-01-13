@@ -1,5 +1,6 @@
 package services;
 
+import designpatterns.creational.builder.entities.bank.BankAccount;
 import designpatterns.creational.builder.entities.bank.BankCard;
 import designpatterns.creational.builder.entities.uatm.Transaction;
 
@@ -10,19 +11,23 @@ import java.util.Set;
 public interface UatmService {
     List<Transaction> getAllTransactions();
 
-    void clearTransactionLog();
+    int clearTransactionLog();
 
     BigDecimal getAccountBalance(Long accountNumber);
 
     BankCard getBankCard();
 
-    void displayAllAccountBalance();
+    List<BankAccount> getAllAccountByCardNumber();
 
-    void withDrawMoney(BigDecimal amountToWithdraw);
+    BankAccount withDrawMoney(Long accountNumber, BigDecimal newBalance);
 
     void transferMoney(BigDecimal amountToTransfer);
 
     void logout();
 
-    BankCard getBankCardByBankAndCardNumberAndBankPin(String bank, Long cardNumber, Long bankPin);
+    BankCard getBankCardByBankAndCardNumberAndBankPin(Long cardNumber, Long bankPin);
+
+    Transaction createTransationLog(Long transactionAccountNumber,
+                                    BigDecimal transactionAmount,
+                                    String transactionDescription);
 }

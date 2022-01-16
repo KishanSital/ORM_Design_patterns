@@ -21,23 +21,19 @@ public class BankDAO {
 
 
     public List<BankClient> retrieveClientList() {
-        entityManager.getTransaction().begin();
 
         String jpql = "select c from BankClient c";
         TypedQuery<BankClient> query = entityManager.createQuery(jpql, BankClient.class);
         List<BankClient> bankClientList = query.getResultList();
-        entityManager.getTransaction().commit();
         return bankClientList;
     }
 
     public BankCard findBankCardByCardNumberAndBankPin(Long cardNumber, Long bankPin) {
-        entityManager.getTransaction().begin();
         String jpql = "select c from BankCard c where c.cardNumber = :cardNumber and c.bankPin = :bankPin";
         TypedQuery<BankCard> query = entityManager.createQuery(jpql, BankCard.class);
         query.setParameter("cardNumber", cardNumber);
         query.setParameter("bankPin", bankPin);
         List<BankCard> resultList = new ArrayList<>(query.getResultList());
-        entityManager.getTransaction().commit();
         return resultList.stream().findFirst().orElse(null);
     }
 
@@ -53,23 +49,19 @@ public class BankDAO {
     }
 
     public BankAccount findBankAccountByAccountNumber(Long accountNumber) {
-        entityManager.getTransaction().begin();
         String jpql = "select c from BankAccount c where c.accountNumber = :accountNumber";
         TypedQuery<BankAccount> query = entityManager.createQuery(jpql, BankAccount.class);
         query.setParameter("accountNumber", accountNumber);
         BankAccount bankAccount = query.getSingleResult();
-        entityManager.getTransaction().commit();
         return bankAccount;
 
     }
 
     public List<BankAccount> findBankAccountsByCardNumber() {
-        entityManager.getTransaction().begin();
         String jpql = "select c from BankCard c where c.cardNumber = :cardNumber";
         TypedQuery<BankCard> query = entityManager.createQuery(jpql, BankCard.class);
         query.setParameter("cardNumber", CardSessionServiceImpl.bankCard.getCardNumber());
-        List<BankCard> resultList = new ArrayList<>(query.getResultList());
-        entityManager.getTransaction().commit();
-        return resultList.get(0).getBankAccounts();
+        BankCard result = query.getSingleResult();
+        return result.getBankAccounts();
     }
 }

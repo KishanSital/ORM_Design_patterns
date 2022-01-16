@@ -15,6 +15,7 @@ public class JPAConfigurationCBVS implements JPAConfiguration{
     }
 
     public EntityManager getEntityManager() {
+        entityManager.clear();
         return entityManager;
     }
 

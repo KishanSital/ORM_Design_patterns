@@ -7,6 +7,7 @@ import designpatterns.creational.builder.entities.bank.BankAccount;
 import designpatterns.creational.builder.entities.bank.BankCard;
 import designpatterns.creational.builder.entities.uatm.Transaction;
 import designpatterns.creational.factory.JPAConfiguration;
+import designpatterns.creational.factory.JPAConfigurationFactory;
 import services.UatmService;
 
 import java.math.BigDecimal;

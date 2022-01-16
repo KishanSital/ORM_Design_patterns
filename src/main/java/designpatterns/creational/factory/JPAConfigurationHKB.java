@@ -15,6 +15,7 @@ public class JPAConfigurationHKB implements JPAConfiguration {
     }
 
     public EntityManager getEntityManager() {
+        entityManager.clear();
         return entityManager;
     }
 

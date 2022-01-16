@@ -41,7 +41,7 @@ public class UatmView {
 
     public void clearTransactionLog() {
         int totalDeletedTransactions = uatmService.clearTransactionLog();
-        System.out.println("\n" + (totalDeletedTransactions + totalDeletedTransactions == 1 ? " Record has " : " Records have ") + "been removed from the transaction log.\n");
+        System.out.println("\n" + ( totalDeletedTransactions == 1 ? "1 Record has " :totalDeletedTransactions +  " Records have ") + "been removed from the transaction log.\n");
     }
 
     public void viewBalance() {
@@ -76,7 +76,7 @@ public class UatmView {
             isSelectedBankValid = bankOptions.keySet().contains(selectedBank);
 
             if (!isSelectedBankValid) {
-                System.out.println("Sorry, we don't provide any services for this bank yet.");
+                System.out.println("Sorry, we don't provide any services for that selection yet.");
                 triesValidation();
             } else {
                 CardSessionServiceImpl.selectedBank = bankOptions.get(selectedBank);
@@ -144,6 +144,7 @@ public class UatmView {
             if (isAccountNumberValid) {
                 BankAccount bankAccount = uatmService.getAllAccountByCardNumber().stream().filter(bA -> bA.getAccountNumber().equals(finalAccountNumber)).findFirst().get();
                 printBalance(bankAccount);
+                System.out.println();
                 return bankAccount;
             }
 
@@ -167,7 +168,7 @@ public class UatmView {
     }
 
     private void printBalance(BankAccount bankAccount) {
-        String message = "Your balance for account type "  + (bankAccount.getBankAccountType().getBankAccountTypeDescription().equalsIgnoreCase("spaar") ? "SPAAR" : "GIRO") + " is " + bankAccount.getBankCurrency().getCurrencyCode() + " " + NumberFormat.getCurrencyInstance().format(bankAccount.getBankBalance());
+        String message = "Your balance for account type "  + (bankAccount.getBankAccountType().getBankAccountTypeDescription().equalsIgnoreCase("spaar") ? "SPAAR" : "GIRO") + " is " + bankAccount.getBankCurrency().getCurrencyCode() + " " + NumberFormat.getCurrencyInstance().format(bankAccount.getBankBalance()).replace("\u20AC","") ;
         System.out.println(message);
     }
 
@@ -203,9 +204,10 @@ public class UatmView {
 
                 bankAccount = uatmService.withDrawMoney(bankAccount.getAccountNumber(), balanceAfterWithdrawal);
 
-                uatmService.createTransationLog(bankAccount.getAccountNumber(), amountToWithdraw, "money has been withdrawn from local UATM machine\n\tWithdrawal currency = " + bankAccount.getBankCurrency().getCurrencyCode());
+                uatmService.createTransationLog(bankAccount.getAccountNumber(), amountToWithdraw, "money has been withdrawn from local UATM machine\n\twithdrawal currency = " + bankAccount.getBankCurrency().getCurrencyCode());
 
                 printBalance(bankAccount);
+                System.out.println();
             }
 
         } while (!isAmountSufficient);

@@ -14,13 +14,10 @@ import static com.github.KishanSital.authenticator.serviceImpl.TriesValidationSe
 public class LoggedInMenuView implements MenuService, Cloneable {
     private static List<String> menuOptionsList;
     private final int exitCode = 7;
-    private final Map<String, Double> overmaakKoersMap;
     private Scanner scanner;
     private UatmView uatmView;
 
-    public LoggedInMenuView(Map<String, Double> overmaakKoersMap,
-                            UatmView uatmView) {
-        this.overmaakKoersMap = overmaakKoersMap;
+    public LoggedInMenuView(UatmView uatmView) {
         this.uatmView = uatmView;
         init();
     }

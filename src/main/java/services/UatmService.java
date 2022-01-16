@@ -19,11 +19,13 @@ public interface UatmService {
 
     List<BankAccount> getAllAccountByCardNumber();
 
+    List<BankAccount> getAllAccountByCardNumber(String bank);
+
     BankAccount withDrawMoney(Long accountNumber, BigDecimal newBalance);
 
-    void transferMoney(BigDecimal amountToTransfer);
-
-    void logout();
+    BankAccount transferMoney(Long accountNumber,
+                              BigDecimal newBalance,
+                              String bank);
 
     BankCard getBankCardByBankAndCardNumberAndBankPin(Long cardNumber, Long bankPin);
 

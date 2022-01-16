@@ -1,5 +1,8 @@
 package app;
 
+import com.github.KishanSital.authenticator.application.MyPackageApplication;
+import com.github.KishanSital.authenticator.models.UserModel;
+import com.github.KishanSital.authenticator.utils.StringUtilsMyPackage;
 import dao.UatmDAO;
 import designpatterns.creational.builder.entities.uatm.User;
 import designpatterns.creational.factory.JPAConfiguration;
@@ -10,12 +13,8 @@ import serviceImpl.UatmServiceImpl;
 import serviceImpl.UatmSessionServiceImpl;
 import views.LoggedInMenuView;
 import views.UatmView;
-import com.github.KishanSital.authenticator.application.MyPackageApplication;
-import com.github.KishanSital.authenticator.models.UserModel;
-import com.github.KishanSital.authenticator.utils.StringUtilsMyPackage;
 
-import java.text.NumberFormat;
-import java.util.Currency;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -26,9 +25,9 @@ public class Application {
 
         Locale.setDefault(new Locale.Builder().setLanguage("nl").setRegion("NL").build());
 
-        Map<String, Double> overmaakKoersMap = new HashMap<>();
-        overmaakKoersMap.put("overmaakKoersUSD", 23.00);
-        overmaakKoersMap.put("overmaakKoersEURO", 24.00);
+        Map<String, BigDecimal> overmaakKoersMap = new HashMap<>();
+        overmaakKoersMap.put("USD->SRD", BigDecimal.valueOf(1.00));
+        overmaakKoersMap.put("EURO->SRD", BigDecimal.valueOf(2.00));
 
         // factory pattern used
         Map<String, JPAConfiguration> JPAConfigurationMap = new HashMap<>();
@@ -54,8 +53,8 @@ public class Application {
         Map<Integer, String> bankOptions = Map.of(1, "DSB", 2, "CBVS", 3, "HKB");
         UatmServiceImpl uatmService = new UatmServiceImpl(JPAConfigurationMap, uatmDAO);
 
-        UatmView uatmView = new UatmView(uatmService, bankOptions);
-        LoggedInMenuView loggedInMenuView = new LoggedInMenuView(overmaakKoersMap, uatmView);
+        UatmView uatmView = new UatmView(uatmService, bankOptions, overmaakKoersMap);
+        LoggedInMenuView loggedInMenuView = new LoggedInMenuView(uatmView);
         loggedInMenuView.displayMenu();
     }
 }

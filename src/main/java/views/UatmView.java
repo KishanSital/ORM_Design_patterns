@@ -6,6 +6,7 @@ import serviceImpl.CardSessionServiceImpl;
 import services.UatmService;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.InputMismatchException;
 import java.util.Map;
@@ -19,11 +20,16 @@ public class UatmView {
 
     private final UatmService uatmService;
     private final Map<Integer, String> bankOptions;
+    private final Map<String, BigDecimal> overmaakKoersMap;
     private Scanner scanner = new Scanner(System.in);
 
-    public UatmView(UatmService uatmService, Map<Integer, String> bankOptions) {
+
+    public UatmView(UatmService uatmService,
+                    Map<Integer, String> bankOptions,
+                    Map<String, BigDecimal> overmaakKoersMap) {
         this.uatmService = uatmService;
         this.bankOptions = bankOptions;
+        this.overmaakKoersMap = overmaakKoersMap;
     }
 
     public void viewTransactions() {
@@ -41,7 +47,7 @@ public class UatmView {
 
     public void clearTransactionLog() {
         int totalDeletedTransactions = uatmService.clearTransactionLog();
-        System.out.println("\n" + ( totalDeletedTransactions == 1 ? "1 Record has " :totalDeletedTransactions +  " Records have ") + "been removed from the transaction log.\n");
+        System.out.println("\n" + (totalDeletedTransactions == 1 ? "1 Record has " : totalDeletedTransactions + " Records have ") + "been removed from the transaction log.\n");
     }
 
     public void viewBalance() {
@@ -62,7 +68,8 @@ public class UatmView {
         Integer selectedBank;
         boolean isSelectedBankValid;
         do {
-            System.out.println("Please select your bank\nType 1 for DSB\nType 2 for CBVS\nType 3 for HKB");
+            System.out.println("Please select your bank\n");
+            displayBankOptions();
             try {
                 selectedBank = scanner.nextInt();
 
@@ -152,12 +159,44 @@ public class UatmView {
         return null;
     }
 
+    private BankAccount retrieveBankAccount(String bank) {
+        boolean isAccountNumberValid;
+        Long accountNumber;
+        resetTriesService();
+        do {
+            System.out.println("Please enter the account number you'd like to send money to");
+            try {
+                accountNumber = scanner.nextLong();
+            } catch (InputMismatchException e) {
+                triesValidation();
+                isAccountNumberValid = false;
+                scanner.next();
+                continue;
+            }
+
+            Long finalAccountNumber = accountNumber;
+            isAccountNumberValid = uatmService.getAllAccountByCardNumber(bank).stream().anyMatch(bankAccount -> bankAccount.getAccountNumber().equals(finalAccountNumber));
+
+            if (!isAccountNumberValid) {
+                System.out.println("This account number does not exist");
+                triesValidation();
+            }
+
+            if (isAccountNumberValid) {
+                BankAccount bankAccount = uatmService.getAllAccountByCardNumber(bank).stream().filter(bA -> bA.getAccountNumber().equals(finalAccountNumber)).findFirst().get();
+                return bankAccount;
+            }
+
+        } while (!isAccountNumberValid);
+        return null;
+    }
+
     public void viewBalanceForAllAccounts() {
         verifyCardSession();
         displayBalanceForAllBankUserAccounts();
         System.out.println();
 
-        // TODO: issue bij data ophalen na update en strategy pattern implementeren
+        // TODO: strategy pattern implementeren
 
     }
 
@@ -168,7 +207,7 @@ public class UatmView {
     }
 
     private void printBalance(BankAccount bankAccount) {
-        String message = "Your balance for account type "  + (bankAccount.getBankAccountType().getBankAccountTypeDescription().equalsIgnoreCase("spaar") ? "SPAAR" : "GIRO") + " is " + bankAccount.getBankCurrency().getCurrencyCode() + " " + NumberFormat.getCurrencyInstance().format(bankAccount.getBankBalance()).replace("\u20AC","") ;
+        String message = "Your balance for account type " + (bankAccount.getBankAccountType().getBankAccountTypeDescription().equalsIgnoreCase("spaar") ? "SPAAR" : "GIRO") + " is " + bankAccount.getBankCurrency().getCurrencyCode() + " " + NumberFormat.getCurrencyInstance().format(bankAccount.getBankBalance()).replace("\u20AC", "");
         System.out.println(message);
     }
 
@@ -216,10 +255,122 @@ public class UatmView {
     }
 
     public void transferMoney() {
+        verifyCardSession();
+        BankAccount sendersBankAccount = displayBalance();
+        BankAccount receiversBankAccount = null;
+        BigDecimal amountToSend;
+        boolean isAmountSufficient;
+        BigDecimal sendersBalanceAfterWithdrawal;
+        resetTriesService();
+        Integer selectedBank;
+        boolean isSelectedBankValid;
 
+        do {
+            System.out.println("Please select the destination bank\n");
+            displayBankOptions();
+            try {
+                selectedBank = scanner.nextInt();
+
+            } catch (InputMismatchException e) {
+                triesValidation();
+                isSelectedBankValid = false;
+                scanner.next();
+                continue;
+            }
+
+            isSelectedBankValid = bankOptions.keySet().contains(selectedBank);
+
+            if (!isSelectedBankValid) {
+                System.out.println("Sorry, we don't provide any services for that selection yet.");
+                triesValidation();
+            } else {
+
+                receiversBankAccount = retrieveBankAccount(bankOptions.get(selectedBank));
+
+                do {
+                    System.out.println("Please enter a non-decimal amount which you'd like to transfer from the above mentioned account");
+                    try {
+                        System.out.print(sendersBankAccount.getBankCurrency().getCurrencyCode() + " ");
+                        amountToSend = scanner.nextBigDecimal();
+                    } catch (InputMismatchException e) {
+                        triesValidation();
+                        isAmountSufficient = false;
+                        scanner.next();
+                        continue;
+                    }
+
+                    sendersBalanceAfterWithdrawal = sendersBankAccount.getBankBalance().subtract(amountToSend);
+                    isAmountSufficient = sendersBalanceAfterWithdrawal.compareTo(BigDecimal.valueOf(0)) >= 0;
+
+                    if (!isAmountSufficient) {
+                        System.out.println("The given amount of " + sendersBankAccount.getBankCurrency().getCurrencyCode() + " " + amountToSend + " is more than your current balance");
+                        triesValidation();
+                    }
+
+                    if (isAmountSufficient) {
+
+                        sendersBankAccount = uatmService.withDrawMoney(sendersBankAccount.getAccountNumber(), sendersBalanceAfterWithdrawal);
+
+                        if (sendersBankAccount.getBankCurrency().getCurrencyCode().equals(receiversBankAccount.getBankCurrency().getCurrencyCode())) {
+                            receiversBankAccount = uatmService.transferMoney(receiversBankAccount.getAccountNumber(),
+                                    (receiversBankAccount.getBankBalance().add(amountToSend)),
+                                    bankOptions.get(selectedBank));
+                        } else {
+                            if (sendersBankAccount.getBankCurrency().getCurrencyCode().equals("EURO")) {
+                                if (receiversBankAccount.getBankCurrency().getCurrencyCode().equals("SRD")) {
+                                    receiversBankAccount = uatmService.transferMoney(receiversBankAccount.getAccountNumber(),
+                                            (receiversBankAccount.getBankBalance().add(amountToSend.multiply(overmaakKoersMap.get("EURO->SRD")))),
+                                            bankOptions.get(selectedBank));
+                                }
+                                if (receiversBankAccount.getBankCurrency().getCurrencyCode().equals("USD")) {
+                                    receiversBankAccount = uatmService.transferMoney(receiversBankAccount.getAccountNumber(),
+                                            (receiversBankAccount.getBankBalance().add(amountToSend.multiply(overmaakKoersMap.get("EURO->SRD").divide(overmaakKoersMap.get("USD->SRD"), RoundingMode.UNNECESSARY)))),
+                                            bankOptions.get(selectedBank));
+                                }
+                            }
+                            if (sendersBankAccount.getBankCurrency().getCurrencyCode().equals("USD")) {
+                                if (receiversBankAccount.getBankCurrency().getCurrencyCode().equals("SRD")) {
+                                    receiversBankAccount = uatmService.transferMoney(receiversBankAccount.getAccountNumber(),
+                                            (receiversBankAccount.getBankBalance().add(amountToSend.multiply(overmaakKoersMap.get("USD->SRD")))),
+                                            bankOptions.get(selectedBank));
+                                }
+                                if (receiversBankAccount.getBankCurrency().getCurrencyCode().equals("EURO")) {
+                                    receiversBankAccount = uatmService.transferMoney(receiversBankAccount.getAccountNumber(),
+                                            (receiversBankAccount.getBankBalance().add(amountToSend.multiply(overmaakKoersMap.get("USD->SRD").divide(overmaakKoersMap.get("USD->EURO"), RoundingMode.UNNECESSARY)))),
+                                            bankOptions.get(selectedBank));
+                                }
+                            }
+                            if (sendersBankAccount.getBankCurrency().getCurrencyCode().equals("SRD")) {
+
+                                if (receiversBankAccount.getBankCurrency().getCurrencyCode().equals("USD")) {
+                                    receiversBankAccount = uatmService.transferMoney(receiversBankAccount.getAccountNumber(),
+                                            (receiversBankAccount.getBankBalance().add(amountToSend.divide(overmaakKoersMap.get("USD->SRD"), RoundingMode.UNNECESSARY))),
+                                            bankOptions.get(selectedBank));
+                                }
+
+                                if (receiversBankAccount.getBankCurrency().getCurrencyCode().equals("EURO")) {
+                                    receiversBankAccount = uatmService.transferMoney(receiversBankAccount.getAccountNumber(),
+                                            (receiversBankAccount.getBankBalance().add(amountToSend.divide(overmaakKoersMap.get("EURO->SRD"), RoundingMode.UNNECESSARY))),
+                                            bankOptions.get(selectedBank));
+                                }
+                            }
+                        }
+                        System.out.println("Transaction was successful");
+                        uatmService.createTransationLog(sendersBankAccount.getAccountNumber(), amountToSend, "money has been transferred to "+ bankOptions.get(selectedBank) +"-"+receiversBankAccount.getBankCurrency().getCurrencyCode()+"-" +receiversBankAccount.getAccountNumber()+"\n\ttransaction currency = " + sendersBankAccount.getBankCurrency().getCurrencyCode());
+
+                        printBalance(sendersBankAccount);
+                        System.out.println();
+                    }
+
+                } while (!isAmountSufficient);
+            }
+        } while (!isSelectedBankValid);
     }
 
-    public void logout() {
-
+    private void displayBankOptions() {
+        for (var entrySet : bankOptions.entrySet()) {
+            System.out.println("Type " + entrySet.getKey() + " for " + entrySet.getValue());
+        }
     }
+
 }

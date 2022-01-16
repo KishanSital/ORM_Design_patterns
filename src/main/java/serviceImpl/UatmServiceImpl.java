@@ -7,7 +7,6 @@ import designpatterns.creational.builder.entities.bank.BankAccount;
 import designpatterns.creational.builder.entities.bank.BankCard;
 import designpatterns.creational.builder.entities.uatm.Transaction;
 import designpatterns.creational.factory.JPAConfiguration;
-import designpatterns.creational.factory.JPAConfigurationFactory;
 import services.UatmService;
 
 import java.math.BigDecimal;
@@ -62,24 +61,34 @@ public class UatmServiceImpl implements UatmService {
     }
 
     @Override
+    public List<BankAccount> getAllAccountByCardNumber(String bank) {
+        BankDAO bankDAO = new BankDAO(jpaConfigurationsMap.get(bank).getEntityManager());
+        return bankDAO.findBankAccountsByCardNumber();
+    }
+
+    @Override
     public BankAccount withDrawMoney(Long accountNumber,
                                      BigDecimal newBalance) {
-        BankDAO bankDAO = new BankDAO(jpaConfigurationsMap.get(CardSessionServiceImpl.selectedBank).getEntityManager());
-        bankDAO.updateAccountBalance(accountNumber, newBalance);
+        BankDAO bankDAO = updateAccountBalance(null, accountNumber, newBalance);
         return bankDAO.findBankAccountByAccountNumber(accountNumber);
 
     }
 
-    @Override
-    public void transferMoney(BigDecimal amountToTransfer) {
-        BankDAO bankDAO = new BankDAO(jpaConfigurationsMap.get(CardSessionServiceImpl.selectedBank).getEntityManager());
-
+    private BankDAO updateAccountBalance(String bank, Long accountNumber, BigDecimal newBalance) {
+        BankDAO bankDAO = new BankDAO(jpaConfigurationsMap.get(bank != null && !bank.isEmpty() ? bank : CardSessionServiceImpl.selectedBank).getEntityManager());
+        bankDAO.updateAccountBalance(accountNumber, newBalance);
+        return bankDAO;
     }
 
     @Override
-    public void logout() {
+    public BankAccount transferMoney(Long accountNumber,
+                                     BigDecimal newBalance,
+                                     String bank) {
+        BankDAO bankDAO = updateAccountBalance(bank, accountNumber, newBalance);
+        return bankDAO.findBankAccountByAccountNumber(accountNumber);
 
     }
+
 
     @Override
     public BankCard getBankCardByBankAndCardNumberAndBankPin(Long cardNumber,

@@ -6,16 +6,13 @@ import designpatterns.creational.builder.entities.uatm.Transaction;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface UatmService {
     List<Transaction> getAllTransactions();
 
     int clearTransactionLog();
-
-    BigDecimal getAccountBalance(Long accountNumber);
-
-    BankCard getBankCard();
 
     List<BankAccount> getAllAccountByCardNumber();
 
@@ -27,9 +24,15 @@ public interface UatmService {
                               BigDecimal newBalance,
                               String bank);
 
+    BankAccount transferMoney(BankAccount sendersBankAccount, BankAccount receiversBankAccount, BigDecimal amountToSend, Integer selectedBank);
+
     BankCard getBankCardByBankAndCardNumberAndBankPin(Long cardNumber, Long bankPin);
 
     Transaction createTransationLog(Long transactionAccountNumber,
                                     BigDecimal transactionAmount,
                                     String transactionDescription);
+
+    Map<Integer, String> getBankOptions();
+
+    Map<String, BigDecimal> getOvermaakKoersMap();
 }

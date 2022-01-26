@@ -1,6 +1,10 @@
 package designpatterns.behavioral.strategy;
 
-public interface UatmOperation {
+import designpatterns.creational.builder.entities.bank.BankAccount;
 
-    void executeOperation();
+import java.math.BigDecimal;
+
+public  interface UatmOperation {
+
+    BigDecimal executeOperation(BankAccount receiversBankAccount, BigDecimal amountToSend);
 }

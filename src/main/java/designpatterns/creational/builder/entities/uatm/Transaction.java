@@ -119,7 +119,7 @@ public class Transaction {
     @Override
     public String toString() {
         return
-                " transaction date = " + transactionDate +
+                "transaction date = " + transactionDate +
                         "\n\ttransaction amount = " + NumberFormat.getCurrencyInstance().format(transactionAmount).replace("\u20AC","") +
                         "\n\ttransaction description = '" + transactionDescription + '\'' +
                         "\n\ttransaction bank source = " + transactionSource + "\n";

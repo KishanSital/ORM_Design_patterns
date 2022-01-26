@@ -1,5 +1,8 @@
 package designpatterns.creational.builder.entities.bank;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -11,6 +14,7 @@ public class BankCard {
     private Long cardNumber;
     @ManyToMany(mappedBy = "bankCards", cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     private List<BankClient> bankClient;
+    @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(
             cascade = CascadeType.ALL,
             orphanRemoval = true

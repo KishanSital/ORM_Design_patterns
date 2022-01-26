@@ -16,6 +16,7 @@ import views.UatmView;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -26,8 +27,8 @@ public class Application {
         Locale.setDefault(new Locale.Builder().setLanguage("nl").setRegion("NL").build());
 
         Map<String, BigDecimal> overmaakKoersMap = new HashMap<>();
-        overmaakKoersMap.put("USD->SRD", BigDecimal.valueOf(1.00));
-        overmaakKoersMap.put("EURO->SRD", BigDecimal.valueOf(2.00));
+        overmaakKoersMap.put("USD->SRD", BigDecimal.valueOf(2.00));
+        overmaakKoersMap.put("EURO->SRD", BigDecimal.valueOf(4.00));
 
         // factory pattern used
         Map<String, JPAConfiguration> JPAConfigurationMap = new HashMap<>();
@@ -50,10 +51,13 @@ public class Application {
         MyPackageApplication.startLoginService(expectedUser);
 
 
-        Map<Integer, String> bankOptions = Map.of(1, "DSB", 2, "CBVS", 3, "HKB");
-        UatmServiceImpl uatmService = new UatmServiceImpl(JPAConfigurationMap, uatmDAO);
+        Map<Integer, String> bankOptions = new LinkedHashMap();
+        bankOptions.put(1,"DSB");
+        bankOptions.put(2,"CBVS");
+        bankOptions.put(3,"HKB");
+        UatmServiceImpl uatmService = new UatmServiceImpl(JPAConfigurationMap, uatmDAO, bankOptions, overmaakKoersMap);
 
-        UatmView uatmView = new UatmView(uatmService, bankOptions, overmaakKoersMap);
+        UatmView uatmView = new UatmView(uatmService);
         LoggedInMenuView loggedInMenuView = new LoggedInMenuView(uatmView);
         loggedInMenuView.displayMenu();
     }

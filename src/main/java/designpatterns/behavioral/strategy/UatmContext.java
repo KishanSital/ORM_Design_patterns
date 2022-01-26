@@ -1,5 +1,9 @@
 package designpatterns.behavioral.strategy;
 
+import designpatterns.creational.builder.entities.bank.BankAccount;
+
+import java.math.BigDecimal;
+
 public class UatmContext {
 
     private UatmOperation uatmOperation;
@@ -8,7 +12,7 @@ public class UatmContext {
         this.uatmOperation = uatmOperation;
     }
 
-    public void executeStrategy() {
-        this.uatmOperation.executeOperation();
+    public BigDecimal executeStrategy(BankAccount receiversBankAccount, BigDecimal amountToSend) {
+        return this.uatmOperation.executeOperation(receiversBankAccount, amountToSend);
     }
 }

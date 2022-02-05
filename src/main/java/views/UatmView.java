@@ -6,11 +6,11 @@ import serviceImpl.CardSessionServiceImpl;
 import services.UatmService;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import static com.github.KishanSital.authenticator.serviceImpl.TriesValidationServiceImpl.resetTriesService;
 import static com.github.KishanSital.authenticator.serviceImpl.TriesValidationServiceImpl.triesValidation;
@@ -143,6 +143,7 @@ public class UatmView {
             }
 
             if (isAccountNumberValid) {
+                CardSessionServiceImpl.currentAccountNumber = accountNumber;
                 BankAccount bankAccount = uatmService.getAllAccountByCardNumber().stream().filter(bA -> bA.getAccountNumber().equals(finalAccountNumber)).findFirst().get();
                 printBalance(bankAccount);
                 System.out.println();
@@ -155,12 +156,12 @@ public class UatmView {
 
     private BankAccount retrieveBankAccount(String bank) {
         boolean isAccountNumberValid;
-        Long accountNumber;
+        Long receipientAccountNumber;
         resetTriesService();
         do {
             System.out.println("Please enter the account number you'd like to send money to");
             try {
-                accountNumber = scanner.nextLong();
+                receipientAccountNumber = scanner.nextLong();
             } catch (InputMismatchException e) {
                 triesValidation();
                 isAccountNumberValid = false;
@@ -168,21 +169,28 @@ public class UatmView {
                 continue;
             }
 
-            Long finalAccountNumber = accountNumber;
-            isAccountNumberValid = uatmService.getAllAccountByCardNumber(bank).stream().anyMatch(bankAccount -> bankAccount.getAccountNumber().equals(finalAccountNumber));
 
-            if (!isAccountNumberValid) {
-                System.out.println("This account number does not exist");
-                triesValidation();
+            if (CardSessionServiceImpl.selectedBank.equalsIgnoreCase(bank) && tryingToSendMoneyToSameAccount(receipientAccountNumber)) {
+                isAccountNumberValid = false;
+            } else {
+                Long accountNumberForValidation = receipientAccountNumber;
+                isAccountNumberValid = uatmService.getAllAccountByCardNumber(bank).stream().anyMatch(bankAccount -> bankAccount.getAccountNumber().equals(accountNumberForValidation));
             }
 
             if (isAccountNumberValid) {
-                BankAccount bankAccount = uatmService.getAllAccountByCardNumber(bank).stream().filter(bA -> bA.getAccountNumber().equals(finalAccountNumber)).findFirst().get();
-                return bankAccount;
+                Long finalAccountNumberForValidation = receipientAccountNumber;
+                return uatmService.getAllAccountByCardNumber(bank).stream().filter(bA -> bA.getAccountNumber().equals(finalAccountNumberForValidation)).findFirst().get();
             }
+
+            System.out.println("This account number does not exist or you're not allowed to send money to this account");
+            triesValidation();
 
         } while (!isAccountNumberValid);
         return null;
+    }
+
+    private boolean tryingToSendMoneyToSameAccount(Long receipientAccountNumber) {
+        return CardSessionServiceImpl.currentAccountNumber.equals(receipientAccountNumber);
     }
 
     public void viewBalanceForAllAccounts() {
@@ -317,7 +325,7 @@ public class UatmView {
     }
 
     private void displayBankOptions() {
-        for (var entrySet : uatmService.getBankOptions().entrySet()) {
+        for (Map.Entry<Integer, String> entrySet : uatmService.getBankOptions().entrySet()) {
             System.out.println("Type " + entrySet.getKey() + " for " + entrySet.getValue());
         }
     }

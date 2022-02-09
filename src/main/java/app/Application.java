@@ -1,14 +1,15 @@
 package app;
 
 import com.github.KishanSital.authenticator.application.MyPackageApplication;
+import com.github.KishanSital.authenticator.models.DatabaseInfo;
 import com.github.KishanSital.authenticator.models.UserModel;
 import com.github.KishanSital.authenticator.utils.StringUtilsMyPackage;
 import dao.UatmDAO;
-import designpatterns.creational.builder.entities.uatm.User;
+import designpatterns.creational.builder.entities.connection.Database;
 import designpatterns.creational.factory.JPAConfiguration;
 import designpatterns.creational.factory.JPAConfigurationFactory;
-import designpatterns.structural.adapter.UserModelAdapter;
-import designpatterns.structural.adapter.UserModelAdapterImpl;
+import designpatterns.structural.adapter.DatabaseInfoAdapter;
+import designpatterns.structural.adapter.DatabaseInfoAdapterImpl;
 import serviceImpl.UatmServiceImpl;
 import serviceImpl.UatmSessionServiceImpl;
 import views.LoggedInMenuView;
@@ -42,19 +43,28 @@ public class Application {
         StringUtilsMyPackage.displayWelcomeMessage();
 
         // adapter pattern used
-        User user = uatmDAO.findUserByUsername("kishan");
-        UatmSessionServiceImpl.user = user;
-        UserModelAdapter userModelAdapter = new UserModelAdapterImpl(user);
-        UserModel expectedUser = userModelAdapter.getUserModel();
+        Database database = new Database.DatabaseBuilder()
+                .dbUrl("jdbc:mysql://localhost/uatm")
+                .dbUser("Kishan")
+                .dbPassword("Kishan")
+                .tableName("user")
+                .userNameColumn("username")
+                .passwordColumn("password")
+                .build();
+
+        DatabaseInfoAdapter databaseInfoAdapter = new DatabaseInfoAdapterImpl(database);
+        DatabaseInfo databaseInfo = databaseInfoAdapter.getDatabaseInfo();
         //
 
-        MyPackageApplication.startLoginService(expectedUser);
+        UserModel userModel = MyPackageApplication.startLoginService(databaseInfo);
+        UatmSessionServiceImpl.user.setUsername(userModel.getUsername());
+        UatmSessionServiceImpl.user.setPassword(String.valueOf(userModel.getPassword()));
 
 
         Map<Integer, String> bankOptions = new LinkedHashMap();
-        bankOptions.put(1,"DSB");
-        bankOptions.put(2,"CBVS");
-        bankOptions.put(3,"HKB");
+        bankOptions.put(1, "DSB");
+        bankOptions.put(2, "CBVS");
+        bankOptions.put(3, "HKB");
         UatmServiceImpl uatmService = new UatmServiceImpl(JPAConfigurationMap, uatmDAO, bankOptions, overmaakKoersMap);
 
         UatmView uatmView = new UatmView(uatmService);

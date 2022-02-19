@@ -6,6 +6,7 @@ import com.github.KishanSital.authenticator.models.UserModel;
 import com.github.KishanSital.authenticator.utils.StringUtilsMyPackage;
 import dao.UatmDAO;
 import designpatterns.creational.builder.entities.connection.Database;
+import designpatterns.creational.builder.entities.uatm.User;
 import designpatterns.creational.factory.JPAConfiguration;
 import designpatterns.creational.factory.JPAConfigurationFactory;
 import designpatterns.structural.adapter.DatabaseInfoAdapter;
@@ -57,8 +58,8 @@ public class Application {
         //
 
         UserModel userModel = MyPackageApplication.startLoginService(databaseInfo);
-        UatmSessionServiceImpl.user.setUsername(userModel.getUsername());
-        UatmSessionServiceImpl.user.setPassword(String.valueOf(userModel.getPassword()));
+        User user = uatmDAO.findUserByUsername(userModel.getUsername());
+        UatmSessionServiceImpl.user = user;
 
 
         Map<Integer, String> bankOptions = new LinkedHashMap();
